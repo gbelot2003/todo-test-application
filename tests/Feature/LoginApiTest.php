@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\User;
 use Tests\TestCase;
 use App\OauthClients;
+use Laravel\Passport\Passport;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -13,7 +15,7 @@ class LoginApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function setUp():void
+    public function setUp(): void
     {
         parent::setUp();
         \Artisan::call('passport:install', ['-vvv' => true]);
@@ -25,7 +27,7 @@ class LoginApiTest extends TestCase
 
         factory(User::class, 1)->create(['id' => 1]);
 
-        $oauth_client = OauthClients::findOrFail(2);
+        $oauth_client = DB::table('oauth_clients')->where('id', 2)->first();//OauthClients::findOrFail(2);
         $secret = $oauth_client->secret;
         $user = User::findOrFail(1);
 
@@ -58,5 +60,21 @@ class LoginApiTest extends TestCase
         $this->json('POST', 'api/v1/register', $body, ['Accept' => 'application/json'])
             ->assertStatus(200);
         $this->assertDatabaseHas('users', ['email' => 'gbelot@tester.com']);
+    }
+
+    /** @test */
+    public function user_logout()
+    {
+
+        Passport::actingAs(
+            $user = factory(User::class)->create()
+        );
+
+        $token = $user->tokens()->first();
+
+        //dd($token);
+        $response = $this->post('api/logout', [])
+            ->assertStatus(200);
+
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use auth;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -25,5 +26,14 @@ class RegisterApiController extends Controller
         ]);
 
         return \response()->json($user, 200);
+    }
+
+    public function logout()
+    {
+        auth()->user()->tokens->each(function($token, $key){
+            $token->delete();
+        });
+
+        return response()->json('logout', 200);
     }
 }
