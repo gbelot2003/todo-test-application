@@ -13,12 +13,15 @@ class LoginApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function setUp():void
+    {
+        parent::setUp();
+        \Artisan::call('passport:install', ['-vvv' => true]);
+    }
+
     /** @test */
     public function login_test()
     {
-        // Migrar las bases de datos
-        //\Artisan::call('migrate',['-vvv' => true]);
-        \Artisan::call('passport:install', ['-vvv' => true]);
 
         factory(User::class, 1)->create(['id' => 1]);
 
@@ -46,6 +49,14 @@ class LoginApiTest extends TestCase
     /** @test */
     public function register_test()
     {
-    
+        $body = [
+            'name' => 'Gerardo',
+            'email' => 'gbelot@tester.com',
+            'password' => 'password01'
+        ];
+
+        $this->json('POST', 'api/v1/register', $body, ['Accept' => 'application/json'])
+            ->assertStatus(200);
+        $this->assertDatabaseHas('users', ['email' => 'gbelot@tester.com']);
     }
 }
