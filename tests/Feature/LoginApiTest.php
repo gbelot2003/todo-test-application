@@ -70,9 +70,6 @@ class LoginApiTest extends TestCase
             $user = factory(User::class)->create()
         );
 
-        $token = $user->tokens()->first();
-
-        //dd($token);
         $response = $this->post('api/logout', [])
             ->assertStatus(200);
 
