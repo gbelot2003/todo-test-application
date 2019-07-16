@@ -22,7 +22,7 @@ class LoginApiTest extends TestCase
     }
 
     /** @test */
-    public function login_test()
+    public function oauth_test()
     {
 
         factory(User::class, 1)->create(['id' => 1]);
@@ -46,6 +46,20 @@ class LoginApiTest extends TestCase
         $this->json('POST', 'oauth/token', $body, ['Content-Type' => 'application/json'])
             ->assertStatus(200)
             ->assertJsonStructure(['token_type', 'expires_in', 'access_token', 'refresh_token']);
+    }
+
+    /** @test */
+    public function login_test_controller()
+    {
+        $user = factory(User::class, 1)->create();
+
+        $body = [
+            'email' => $user[0]->email,
+            'password' => 'password'
+        ];
+
+        $this->json('POST', 'api/v1/login', $body)
+            ->assertStatus(200);
     }
 
     /** @test */
